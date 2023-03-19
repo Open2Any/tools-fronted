@@ -1,3 +1,6 @@
 import Message from './Message/index.vue'
 
-export { Message }
+import UserModel from './UserModel.vue'
+
+
+export { Message,UserModel }

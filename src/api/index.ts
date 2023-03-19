@@ -51,3 +51,24 @@ export function fetchVerify<T>(token: string) {
     data: { token },
   })
 }
+
+export function fetchRegister<T>(username: string,password:string,email:string) {
+  return post<T>({
+    url: '/tools-register',
+    data: { username,password,email },
+  })
+}
+
+export function fetchLogin<T>(username: string,password:string) {
+  return post<T>({
+    url: '/tools-login',
+    data: { username,password },
+  })
+}
+
+export function fetchResetPassword<T>(username: string,password:string,email:string) {
+  return post<T>({
+    url: '/tools-request-reset-password',
+    data: { username,password,email },
+  })
+}

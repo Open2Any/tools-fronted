@@ -2,9 +2,9 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { NAutoComplete, NButton, NInput, useDialog, useMessage } from 'naive-ui'
+import { NAutoComplete,NSelect, NButton, NInput, useDialog, useMessage,NLayoutHeader } from 'naive-ui'
 import html2canvas from 'html2canvas'
-import { Message } from './components'
+import { Message,UserModel } from './components'
 import { useScroll } from './hooks/useScroll'
 import { useChat } from './hooks/useChat'
 import { useCopyCode } from './hooks/useCopyCode'
@@ -40,6 +40,23 @@ const conversationList = computed(() => dataSources.value.filter(item => (!item.
 
 const prompt = ref<string>('')
 const loading = ref<boolean>(false)
+const value = ref<string>('0')
+
+const options:any = [
+        {
+          label: "GPT3.5",
+          value: '0',
+        },
+        {
+          label: 'GPT4',
+          value: '1'
+        },
+        {
+          label: '图片',
+          value: '2'
+        },
+      ]
+
 
 // 添加PromptStore
 const promptStore = usePromptStore()
@@ -444,16 +461,46 @@ const footerClass = computed(() => {
 
 onMounted(() => {
   scrollToBottom()
+  if (localStorage.getItem('token')) {
+    childRef.value.changeType('reset')
+  }
 })
+
+const logout = () => {
+  localStorage.removeItem('token')
+  childRef.value.changeType('login')
+}
 
 onUnmounted(() => {
   if (loading.value)
     controller.abort()
 })
+
+const childRef:any = ref(null);
+
+
+const showLoginForm = (type?:string) => {
+  if (childRef.value) {
+     
+      childRef.value?.showLoginForm()
+       if (type) {
+        
+      }
+    }
+}
+
+const changeTypeLabel = (label:string) => {
+  typeLabel.value = label
+}
+
+const typeLabel:any = ref('登录')
+
+
 </script>
 
 <template>
   <div class="flex flex-col w-full h-full">
+    <UserModel  ref="childRef" @changeTypeLabel="changeTypeLabel" />
     <HeaderComponent
       v-if="isMobile"
       :using-context="usingContext"
@@ -461,6 +508,32 @@ onUnmounted(() => {
       @toggle-using-context="toggleUsingContext"
     />
     <main class="flex-1 overflow-hidden">
+     <NLayoutHeader bordered class="p-1 h-11"  v-if="!isMobile">
+        <div class="no-space" style="display: flex; flex-flow: row wrap; justify-content: flex-start;float: left; height: 100%;">
+          <div class="p-1 ">
+            <n-button v-if="typeLabel == '登录'" style="margin-right: 0.5rem !important;" type="primary" ghost size="small" ref="model"  @click="showLoginForm()" >
+              {{typeLabel}}
+            </n-button>
+            <n-button v-if="typeLabel !== '登录'" style="margin-right: 0.5rem !important;" type="primary" ghost size="small" ref="model"  @click="logout()" >
+             退出登录
+            </n-button>
+             <n-button type="primary" v-if="typeLabel !== '登录'" ghost size="small" ref="model" @click="showLoginForm('reset')" >
+              重置密码
+            </n-button>
+          </div>
+          <!-- <div class="w-28">
+             <NSelect 
+              v-model:value="value" 
+              size="small" 
+              :options="options" 
+              class="p-1 pr-0"
+            />
+          </div> -->
+        </div>
+        <div class="n-space pr-4 leading-9" style="float: right; font-size: 15px;">
+           <span style="color:aquamarine">TOOLS</span>
+        </div>
+      </NLayoutHeader>
       <div
         id="scrollRef"
         ref="scrollRef"
@@ -471,13 +544,9 @@ onUnmounted(() => {
           class="w-full max-w-screen-xl m-auto dark:bg-[#101014]"
           :class="[isMobile ? 'p-2' : 'p-4']"
         >
-          <template v-if="!dataSources.length">
-            <div class="flex items-center justify-center mt-4 text-center text-neutral-300">
-              <SvgIcon icon="ri:bubble-chart-fill" class="mr-2 text-3xl" />
-              <span>Aha~</span>
-            </div>
-          </template>
-          <template v-else>
+          <!-- <template v-if="!dataSources.length"> -->
+          <!-- </template> -->
+          <!-- <template v-else> -->
             <div>
               <Message
                 v-for="(item, index) of dataSources"
@@ -499,7 +568,7 @@ onUnmounted(() => {
                 </NButton>
               </div>
             </div>
-          </template>
+          <!-- </template> -->
         </div>
       </div>
     </main>

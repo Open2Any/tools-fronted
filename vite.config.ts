@@ -39,7 +39,7 @@ export default defineConfig((env) => {
         '/tools': {
           target: viteEnv.VITE_APP_API_BASE_URL,
           changeOrigin: true, // 允许跨域
-          rewrite: path => path.replace('/tools/', '/'),
+          rewrite: path => path.replace('/tools', '/tools'),
         },
       },
     },
