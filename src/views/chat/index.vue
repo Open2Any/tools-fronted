@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { NAutoComplete,NSelect, NButton, NInput, useDialog, useMessage,NLayoutHeader } from 'naive-ui'
+import { NAutoComplete,NSelect,NPopconfirm, NButton, NInput, useDialog, useMessage,NLayoutHeader } from 'naive-ui'
 import html2canvas from 'html2canvas'
 import { Message,UserModel } from './components'
 import { useScroll } from './hooks/useScroll'
@@ -462,30 +462,30 @@ const footerClass = computed(() => {
 onMounted(() => {
   scrollToBottom()
   if (localStorage.getItem('token')) {
-    childRef.value.changeType('reset')
+    typeLabel.value == '退出登录'
   }
 })
 
 const logout = () => {
   localStorage.removeItem('token')
   childRef.value.changeType('login')
+  changeTypeLabel('登录')
+  ms.success('logout success')
 }
 
 onUnmounted(() => {
   if (loading.value)
     controller.abort()
+
+  
 })
 
 const childRef:any = ref(null);
 
 
-const showLoginForm = (type?:string) => {
+const showLoginForm = () => {
   if (childRef.value) {
-     
       childRef.value?.showLoginForm()
-       if (type) {
-        
-      }
     }
 }
 
@@ -514,12 +514,20 @@ const typeLabel:any = ref('登录')
             <n-button v-if="typeLabel == '登录'" style="margin-right: 0.5rem !important;" type="primary" ghost size="small" ref="model"  @click="showLoginForm()" >
               {{typeLabel}}
             </n-button>
-            <n-button v-if="typeLabel !== '登录'" style="margin-right: 0.5rem !important;" type="primary" ghost size="small" ref="model"  @click="logout()" >
+            <NPopconfirm @positive-click="logout" v-if="typeLabel !== '登录'">
+                  <template #trigger>
+                    <NButton size="small" ghost type="primary"  style="margin-right: 0.5rem !important;"  >
+                      {{ $t('退出登录') }}
+                    </NButton>
+                  </template>
+                  {{ $t('是否退出登录') }}
+                </NPopconfirm>
+            <!-- <n-button v-if="typeLabel !== '登录'" style="margin-right: 0.5rem !important;" type="primary" ghost size="small" ref="model"  @click="logout()" >
              退出登录
-            </n-button>
-             <n-button type="primary" v-if="typeLabel !== '登录'" ghost size="small" ref="model" @click="showLoginForm('reset')" >
+            </n-button> -->
+             <!-- <n-button type="primary" v-if="typeLabel !== '登录'" ghost size="small" ref="model" @click="showLoginForm('reset')" >
               重置密码
-            </n-button>
+            </n-button> -->
           </div>
           <!-- <div class="w-28">
              <NSelect 
@@ -541,7 +549,7 @@ const typeLabel:any = ref('登录')
       >
         <div
           id="image-wrapper"
-          class="w-full max-w-screen-xl m-auto dark:bg-[#101014]"
+          class="w-full max-w-screen-xl m-auto dark:bg-[#101014]  pb-[3rem]"
           :class="[isMobile ? 'p-2' : 'p-4']"
         >
           <!-- <template v-if="!dataSources.length"> -->

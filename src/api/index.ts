@@ -66,9 +66,17 @@ export function fetchLogin<T>(username: string,password:string) {
   })
 }
 
-export function fetchResetPassword<T>(username: string,password:string,email:string) {
+export function fetchSendCode<T>(email:string) {
   return post<T>({
     url: '/tools-request-reset-password',
-    data: { username,password,email },
+    data: { email },
+  })
+}
+
+
+export function fetchResetPassword<T>(email: string,password:string,code:string) {
+  return post<T>({
+    url: '/tools-reset-password',
+    data: { email,password,code },
   })
 }
