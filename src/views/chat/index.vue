@@ -2,9 +2,9 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { NAutoComplete,NSelect,NPopconfirm, NButton, NInput, useDialog, useMessage,NLayoutHeader } from 'naive-ui'
+import { NAutoComplete,NPopconfirm, NButton, NInput, useDialog, useMessage,NLayoutHeader } from 'naive-ui'
 import html2canvas from 'html2canvas'
-import { Message,UserModel } from './components'
+import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
 import { useChat } from './hooks/useChat'
 import { useCopyCode } from './hooks/useCopyCode'
@@ -12,13 +12,17 @@ import { useUsingContext } from './hooks/useUsingContext'
 import HeaderComponent from './components/Header/index.vue'
 import { HoverButton, SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { useChatStore, usePromptStore } from '@/store'
+import { useChatStore, usePromptStore,useAuthStore } from '@/store'
 import { fetchChatAPIProcess } from '@/api'
 import { t } from '@/locales'
 
 let controller = new AbortController()
 
 const openLongReply = import.meta.env.VITE_GLOB_OPEN_LONG_REPLY === 'true'
+
+const authStore = useAuthStore()
+
+const showLogout = computed(() => authStore.token)
 
 const route = useRoute()
 const dialog = useDialog()
@@ -40,23 +44,6 @@ const conversationList = computed(() => dataSources.value.filter(item => (!item.
 
 const prompt = ref<string>('')
 const loading = ref<boolean>(false)
-const value = ref<string>('0')
-
-const options:any = [
-        {
-          label: "GPT3.5",
-          value: '0',
-        },
-        {
-          label: 'GPT4',
-          value: '1'
-        },
-        {
-          label: '图片',
-          value: '2'
-        },
-      ]
-
 
 // 添加PromptStore
 const promptStore = usePromptStore()
@@ -461,46 +448,26 @@ const footerClass = computed(() => {
 
 onMounted(() => {
   scrollToBottom()
-  if (localStorage.getItem('token')) {
-    typeLabel.value == '退出登录'
-  }
 })
 
 const logout = () => {
   localStorage.removeItem('token')
-  childRef.value.changeType('login')
-  changeTypeLabel('登录')
+  authStore.removeToken()
+  // window.location.reload()
   ms.success('logout success')
 }
 
 onUnmounted(() => {
   if (loading.value)
     controller.abort()
-
-  
 })
-
-const childRef:any = ref(null);
-
-
-const showLoginForm = () => {
-  if (childRef.value) {
-      childRef.value?.showLoginForm()
-    }
-}
-
-const changeTypeLabel = (label:string) => {
-  typeLabel.value = label
-}
-
-const typeLabel:any = ref('登录')
 
 
 </script>
 
 <template>
   <div class="flex flex-col w-full h-full">
-    <UserModel  ref="childRef" @changeTypeLabel="changeTypeLabel" />
+    <!-- <UserModel  ref="childRef" @changeTypeLabel="changeTypeLabel" /> -->
     <HeaderComponent
       v-if="isMobile"
       :using-context="usingContext"
@@ -511,10 +478,10 @@ const typeLabel:any = ref('登录')
      <NLayoutHeader bordered class="p-1 h-11"  v-if="!isMobile">
         <div class="no-space" style="display: flex; flex-flow: row wrap; justify-content: flex-start;float: left; height: 100%;">
           <div class="p-1 ">
-            <n-button v-if="typeLabel == '登录'" style="margin-right: 0.5rem !important;" type="primary" ghost size="small" ref="model"  @click="showLoginForm()" >
+            <!-- <n-button v-if="typeLabel == '登录'" style="margin-right: 0.5rem !important;" type="primary" ghost size="small" ref="model"  @click="showLoginForm()" >
               {{typeLabel}}
-            </n-button>
-            <NPopconfirm @positive-click="logout" v-if="typeLabel !== '登录'">
+            </n-button> -->
+            <NPopconfirm @positive-click="logout" v-if="showLogout">
                   <template #trigger>
                     <NButton size="small" ghost type="primary"  style="margin-right: 0.5rem !important;"  >
                       {{ $t('退出登录') }}

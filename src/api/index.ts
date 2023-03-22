@@ -41,7 +41,7 @@ export function fetchChatAPIProcess<T = any>(
 
 export function fetchSession<T>() {
   return post<T>({
-    url: '/tools-session',
+    url: '/tools-auth',
   })
 }
 
