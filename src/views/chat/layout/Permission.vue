@@ -60,7 +60,6 @@ const disabledSend = computed(() => !form.value.email || !form.value.password )
 const formTitle = ref('登录');
 const type = ref('login'); // 默认显示登录表单
 const form = ref({
-  username: '',
   password: '',
   email: '',
   code:''
@@ -68,13 +67,17 @@ const form = ref({
 
 const formRef = ref<FormInst | null>(null)
 
-const rules = ref({
-      username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-      email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
-     password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-    code: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
-      
-    });
+const rules:any = ref({
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { type: 'email', message: '请输入正确的邮箱' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { max: 16, message: '请输入16位以内的密码' }
+  ],
+  code: [{ required: true, message: '请输入验证码', trigger: 'blur' }],      
+  });
 
 const handleSubmit = (e:any) => {
    e.preventDefault()
@@ -123,7 +126,7 @@ watch(
 const login = async (form: any) => {
   try{
       loading.value = true
-      const res:any =await fetchLogin(form.value.username, form.value.password)
+      const res:any =await fetchLogin(form.value.email, form.value.password)
       const token: string = res.data.token
       authStore.setToken(token)
       ms.success('success')
@@ -142,7 +145,7 @@ const login = async (form: any) => {
 const register = async (form: any) => {
   try {
       loading.value = true
-      const res:any =await fetchRegister(form.value.username, form.value.password,form.value.email)
+      const res:any =await fetchRegister(form.value.email,form.value.password)
       console.log('res: ', res);
       ms.success('register success')
       authStore.removeToken()
@@ -203,10 +206,10 @@ const resetPassword = async (form: any) => {
         :rules="rules"
         
        >
-        <NFormItem label="用户名" path="username" v-if="type != 'reset'">
+        <!-- <NFormItem label="用户名" path="username" v-if="type != 'reset'">
           <NInput v-model:value="form.username" placeholder="请输入用户名"  autocomplete="off"></NInput>
-        </NFormItem>
-        <NFormItem label="邮箱" path="email" v-if="type != 'login'">
+        </NFormItem> -->
+        <NFormItem label="邮箱" path="email">
           <NInput v-model:value="form.email" placeholder="请输入邮箱" autocomplete="off"></NInput>
         </NFormItem>
         <NFormItem :label="type=='reset'?'设置新密码':'密码'" path="password">

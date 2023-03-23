@@ -52,17 +52,17 @@ export function fetchVerify<T>(token: string) {
   })
 }
 
-export function fetchRegister<T>(username: string,password:string,email:string) {
+export function fetchRegister<T>(email:string,password:string) {
   return post<T>({
     url: '/tools-register',
-    data: { username,password,email },
+    data: { password,email },
   })
 }
 
-export function fetchLogin<T>(username: string,password:string) {
+export function fetchLogin<T>(email: string,password:string) {
   return post<T>({
     url: '/tools-login',
-    data: { username,password },
+    data: { email,password },
   })
 }
 

@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { ref,watch} from 'vue'
 import {  NModal, NForm, NFormItem, NInput,FormInst,NSpace,NButton,useMessage  } from 'naive-ui';
-import { fetchLogin, fetchResetPassword, fetchRegister,fetchSendCode } from '@/api'
+import { fetchLogin, fetchResetPassword,fetchSendCode } from '@/api'
 import { t } from '@/locales'
 
 const rules = ref({
@@ -97,8 +97,8 @@ const login = async (form: any) => {
 
 const register = async (form: any) => {
   try{
-      const res:any =await fetchRegister(form.value.username, form.value.password,form.value.email)
-      ms.success(t(res.message))
+      // const res:any =await fetchRegister(form.value.username, form.value.password,form.value.email)
+      // ms.success(t(res.message))
        showForm.value = false
   }catch(err:any) {
     ms.error(t(err.message))
